@@ -1,6 +1,7 @@
 using AIMS.Core;
 using AIMS.Infrastructure;
 using AIMS.Infrastructure.Data;
+using AIMS.Infrastructure.FileTransfer;
 using AIMS.SharedKernel.Interfaces;
 using Ardalis.ListStartupServices;
 using Autofac;
@@ -62,12 +63,16 @@ namespace AIMS.Web
             //var infrastructureAssembly = Assembly.GetAssembly(typeof(EfRepository));
             //var sharedKernelAssembly = Assembly.GetAssembly(typeof(IRepository));
             //base uild
-                //ContainerSetup.InitializeWeb(Assembly.GetExecutingAssembly(), services);
+            //ContainerSetup.InitializeWeb(Assembly.GetExecutingAssembly(), services);
+
+            builder.Register<FtpClientWrapper>(d => new FtpClientWrapper(new System.Uri("ftp://13.76.249.24"), "sammy", "220990"));
+            builder.RegisterType<FileUploadHelper>();
+
             var coreAssembly = Assembly.GetAssembly(typeof(DatabasePopulator));
             var infrastructureAssembly = Assembly.GetAssembly(typeof(EfRepository));
             var sharedKernelAssembly = Assembly.GetAssembly(typeof(IRepository));
             builder.RegisterAssemblyTypes(sharedKernelAssembly, coreAssembly, infrastructureAssembly).AsImplementedInterfaces();
-
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
