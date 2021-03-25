@@ -1,4 +1,5 @@
 using AIMS.Core;
+using AIMS.Core.Services;
 using AIMS.Infrastructure;
 using AIMS.Infrastructure.Data;
 using AIMS.Infrastructure.FileTransfer;
@@ -67,10 +68,12 @@ namespace AIMS.Web
 
             builder.Register<FtpClientWrapper>(d => new FtpClientWrapper(new System.Uri("ftp://13.76.249.24"), "sammy", "220990"));
             builder.RegisterType<FileUploadHelper>();
+            builder.RegisterType<TodoItemServices>();
 
             var coreAssembly = Assembly.GetAssembly(typeof(DatabasePopulator));
             var infrastructureAssembly = Assembly.GetAssembly(typeof(EfRepository));
             var sharedKernelAssembly = Assembly.GetAssembly(typeof(IRepository));
+
             builder.RegisterAssemblyTypes(sharedKernelAssembly, coreAssembly, infrastructureAssembly).AsImplementedInterfaces();
             
         }
