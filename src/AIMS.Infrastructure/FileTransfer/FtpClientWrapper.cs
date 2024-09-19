@@ -16,12 +16,12 @@ namespace AIMS.Infrastructure.FileTransfer
 
         public  bool UploadFile(string sourcefilepath, string destinationfilepath, bool overwrite=false)
         {
-            bool result = false;
+            FtpStatus result = FtpStatus.Failed;
             if(overwrite)
                 result=client.UploadFile(sourcefilepath, destinationfilepath, FtpRemoteExists.Overwrite);
             else
-                result=client.UploadFile(sourcefilepath, destinationfilepath, FtpRemoteExists.Append);
-            return result;
+                result=client.UploadFile(sourcefilepath, destinationfilepath, FtpRemoteExists.Resume);
+            return result== FtpStatus.Success;
         }
     }
 }

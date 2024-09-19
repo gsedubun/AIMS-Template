@@ -8,10 +8,21 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AIMS.Infrastructure.IdentityClass;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace AIMS.Infrastructure.Data
 {
-    public class AppDbContext : DbContext
+    //public class AppIdentityDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
+    //{
+    //    public AppIdentityDbContext(DbContextOptions<IdentityDbContext> options) : base(options)
+    //    {
+            
+    //    }
+
+     
+    //}
+    public class AppDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, string>
     {
         private readonly IDomainEventDispatcher _dispatcher;
 
@@ -26,7 +37,6 @@ namespace AIMS.Infrastructure.Data
         }
 
         public DbSet<ToDoItem> ToDoItems { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
