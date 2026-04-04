@@ -54,13 +54,13 @@ namespace AIMS.WebFrontend.Pages.Account
             // Do something
         }
         [BindProperty]
-        public LoginViewModel LoginInput { get; set; }
+        public LoginViewModel LoginInput { get; set; } = new LoginViewModel();
 
     }
 
     public class LoginViewModel
     {
-        public string UserName { get; set; }
-        public string Password { get; set; }
+        public string UserName { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
     }
 }
