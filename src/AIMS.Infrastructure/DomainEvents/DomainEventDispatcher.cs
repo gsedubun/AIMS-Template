@@ -11,12 +11,12 @@ namespace AIMS.Infrastructure.DomainEvents
 
     public class DomainEventDispatcher : IDomainEventDispatcher
     {
-        private readonly IComponentContext _container;
+        private readonly IServiceProvider _provider;
 
-        //public DomainEventDispatcher(IComponentContext container)
-        //{
-        //    _container = container;
-        //}
+        public DomainEventDispatcher(IServiceProvider provider)
+        {
+            _provider = provider;
+        }
 
         public async Task Dispatch(BaseDomainEvent domainEvent)
         {
@@ -32,7 +32,8 @@ namespace AIMS.Infrastructure.DomainEvents
         {
             Type handlerType = typeof(IHandle<>).MakeGenericType(domainEvent.GetType());
             Type wrapperType = typeof(DomainEventHandler<>).MakeGenericType(domainEvent.GetType());
-            IEnumerable handlers = (IEnumerable)_container.Resolve(typeof(IEnumerable<>).MakeGenericType(handlerType));
+            var handlersType = typeof(IEnumerable<>).MakeGenericType(handlerType);
+            IEnumerable handlers = (IEnumerable)_provider.GetService(handlersType) ?? Enumerable.Empty<object>();
             IEnumerable<DomainEventHandler> wrappedHandlers = handlers.Cast<object>()
                 .Select(handler => (DomainEventHandler)Activator.CreateInstance(wrapperType, handler));
 
