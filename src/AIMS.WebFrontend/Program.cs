@@ -19,6 +19,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 //    options.UseSqlServer(connectionString));
 
 builder.Services.AddDbContext(connectionString);
+builder.Services.AddAuditTrail(); // Register audit trail services
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddTransient<IDomainEventDispatcher, DomainEventDispatcher>();
 
@@ -41,6 +42,9 @@ builder.Services.SeedData();
 builder.Services.AddAutofac(c => 
     new AutofacServiceProviderFactory());
 var app = builder.Build();
+
+// Seed default roles and admin user
+await app.Services.SeedRolesAndAdminUserAsync();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

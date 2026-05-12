@@ -12,18 +12,80 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AIMS.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240911085051_IdentityTables")]
-    partial class IdentityTables
+    [Migration("20260512082505_AssetItemRemarks1")]
+    partial class AssetItemRemarks1
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.8")
+                .HasAnnotation("ProductVersion", "10.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("AIMS.Core.Entities.AssetItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AssetId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<int>("IntegrityStatus")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AssetItems");
+                });
+
+            modelBuilder.Entity("AIMS.Core.Entities.AssetItemRemarks", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AssetItemId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssetItemId");
+
+                    b.ToTable("AssetRemarks");
+                });
 
             modelBuilder.Entity("AIMS.Core.Entities.ToDoItem", b =>
                 {
@@ -58,7 +120,8 @@ namespace AIMS.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
@@ -257,6 +320,15 @@ namespace AIMS.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("AIMS.Core.Entities.AssetItemRemarks", b =>
+                {
+                    b.HasOne("AIMS.Core.Entities.AssetItem", "AssetItem")
+                        .WithMany("AssetItemRemarks")
+                        .HasForeignKey("AssetItemId");
+
+                    b.Navigation("AssetItem");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("AIMS.Infrastructure.IdentityClass.ApplicationRole", null)
@@ -306,6 +378,11 @@ namespace AIMS.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("AIMS.Core.Entities.AssetItem", b =>
+                {
+                    b.Navigation("AssetItemRemarks");
                 });
 #pragma warning restore 612, 618
         }
