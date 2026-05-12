@@ -1,0 +1,276 @@
+@page
+@model AIMS.WebFrontend.Pages.Admin.AuditLogsModel
+@{
+    ViewData["Title"] = "Audit Trail";
+}
+
+<h1>Audit Trail</h1>
+
+@if (!Model.CanViewAllLogs)
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> You are viewing your own audit logs only.
+    </div>
+}
+
+<div class="row mb-3">
+    <div class="col-md-12">
+        <form method="get" class="row g-3">
+            <div class="col-md-2">
+                <label for="EntityNameFilter" class="form-label">Entity</label>
+                <select name="EntityNameFilter" id="EntityNameFilter" class="form-select">
+                    <option value="">All Entities</option>
+                    @foreach (var entity in Model.AvailableEntities)
+                    {
+                        <option value="@entity" selected="@(Model.EntityNameFilter == entity)">@entity</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="ActionFilter" class="form-label">Action</label>
+                <select name="ActionFilter" id="ActionFilter" class="form-select">
+                    <option value="">All Actions</option>
+                    <option value="Created" selected="@(Model.ActionFilter == "Created")">Created</option>
+                    <option value="Updated" selected="@(Model.ActionFilter == "Updated")">Updated</option>
+                    <option value="Deleted" selected="@(Model.ActionFilter == "Deleted")">Deleted</option>
+                    <option value="Login" selected="@(Model.ActionFilter == "Login")">Login</option>
+                    <option value="LoginFailed" selected="@(Model.ActionFilter == "LoginFailed")">Login Failed</option>
+                    <option value="Logout" selected="@(Model.ActionFilter == "Logout")">Logout</option>
+                    <option value="UserCreated" selected="@(Model.ActionFilter == "UserCreated")">User Created</option>
+                    <option value="UserUpdated" selected="@(Model.ActionFilter == "UserUpdated")">User Updated</option>
+                    <option value="UserDeleted" selected="@(Model.ActionFilter == "UserDeleted")">User Deleted</option>
+                    <option value="RoleAssigned" selected="@(Model.ActionFilter == "RoleAssigned")">Role Assigned</option>
+                    <option value="RoleRemoved" selected="@(Model.ActionFilter == "RoleRemoved")">Role Removed</option>
+                </select>
+            </div>
+            @if (Model.CanViewAllLogs)
+            {
+                <div class="col-md-2">
+                    <label for="UserNameFilter" class="form-label">User</label>
+                    <input type="text" name="UserNameFilter" id="UserNameFilter" class="form-control" value="@Model.UserNameFilter" placeholder="Username">
+                </div>
+            }
+            <div class="col-md-2">
+                <label for="FromDate" class="form-label">From Date</label>
+                <input type="date" name="FromDate" id="FromDate" class="form-control" value="@Model.FromDate?.ToString("yyyy-MM-dd")">
+            </div>
+            <div class="col-md-2">
+                <label for="ToDate" class="form-label">To Date</label>
+                <input type="date" name="ToDate" id="ToDate" class="form-control" value="@Model.ToDate?.ToString("yyyy-MM-dd")">
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary me-2">Filter</button>
+                <a href="/Admin/AuditLogs" class="btn btn-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Timestamp</th>
+                <th>Category</th>
+                <th>Entity/Activity</th>
+                <th>Action</th>
+                <th>Description</th>
+                <th>User</th>
+                <th>Result</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var log in Model.AuditLogs)
+            {
+                <tr>
+                    <td>@log.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</td>
+                    <td>
+                        @if (log.Category == "Security")
+                        {
+                            <span class="badge bg-danger">@log.Category</span>
+                        }
+                        else if (log.Category == "Activity")
+                        {
+                            <span class="badge bg-info">@log.Category</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@log.Category</span>
+                        }
+                    </td>
+                    <td>@log.EntityName</td>
+                    <td>
+                        @if (log.Action == "Created" || log.Action == "UserCreated" || log.Action == "RoleCreated")
+                        {
+                            <span class="badge bg-success">@log.Action</span>
+                        }
+                        else if (log.Action == "Updated" || log.Action == "UserUpdated" || log.Action == "RoleUpdated")
+                        {
+                            <span class="badge bg-warning text-dark">@log.Action</span>
+                        }
+                        else if (log.Action == "Deleted" || log.Action == "UserDeleted" || log.Action == "RoleDeleted")
+                        {
+                            <span class="badge bg-danger">@log.Action</span>
+                        }
+                        else if (log.Action == "Login")
+                        {
+                            <span class="badge bg-primary">@log.Action</span>
+                        }
+                        else if (log.Action == "LoginFailed")
+                        {
+                            <span class="badge bg-danger">@log.Action</span>
+                        }
+                        else if (log.Action == "Logout")
+                        {
+                            <span class="badge bg-secondary">@log.Action</span>
+                        }
+                        else if (log.Action == "RoleAssigned" || log.Action == "RoleRemoved")
+                        {
+                            <span class="badge bg-info">@log.Action</span>
+                        }
+                        else if (log.Action == "PasswordReset" || log.Action == "PasswordChanged")
+                        {
+                            <span class="badge bg-warning text-dark">@log.Action</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@log.Action</span>
+                        }
+                    </td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(log.Description))
+                        {
+                            @(log.Description.Length > 50 ? log.Description.Substring(0, 50) + "..." : log.Description)
+                        }
+                    </td>
+                    <td>@(log.UserName ?? "System")</td>
+                    <td>
+                        @if (log.Result == "Success")
+                        {
+                            <span class="badge bg-success">@log.Result</span>
+                        }
+                        else if (log.Result == "Failed")
+                        {
+                            <span class="badge bg-danger">@log.Result</span>
+                        }
+                        else if (!string.IsNullOrEmpty(log.Result))
+                        {
+                            <span class="badge bg-secondary">@log.Result</span>
+                        }
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="modal" data-bs-target="#detailsModal-@log.Id">
+                            View
+                        </button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@if (!Model.AuditLogs.Any())
+{
+    <div class="alert alert-info">
+        No audit logs found matching the specified criteria.
+    </div>
+}
+
+<!-- Pagination -->
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Audit log pagination">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link" href="?page=@(Model.CurrentPage - 1)&EntityNameFilter=@Model.EntityNameFilter&ActionFilter=@Model.ActionFilter&UserNameFilter=@Model.UserNameFilter&FromDate=@Model.FromDate?.ToString("yyyy-MM-dd")&ToDate=@Model.ToDate?.ToString("yyyy-MM-dd")">Previous</a>
+            </li>
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="?page=@i&EntityNameFilter=@Model.EntityNameFilter&ActionFilter=@Model.ActionFilter&UserNameFilter=@Model.UserNameFilter&FromDate=@Model.FromDate?.ToString("yyyy-MM-dd")&ToDate=@Model.ToDate?.ToString("yyyy-MM-dd")">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                <a class="page-link" href="?page=@(Model.CurrentPage + 1)&EntityNameFilter=@Model.EntityNameFilter&ActionFilter=@Model.ActionFilter&UserNameFilter=@Model.UserNameFilter&FromDate=@Model.FromDate?.ToString("yyyy-MM-dd")&ToDate=@Model.ToDate?.ToString("yyyy-MM-dd")">Next</a>
+            </li>
+        </ul>
+    </nav>
+}
+
+<!-- Detail Modals -->
+@foreach (var log in Model.AuditLogs)
+{
+    <div class="modal fade" id="detailsModal-@log.Id" tabindex="-1" aria-labelledby="detailsModalLabel-@log.Id" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="detailsModalLabel-@log.Id">
+                        Audit Details - @log.EntityName (@log.Action)
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <strong>Category:</strong> @log.Category<br>
+                            <strong>Entity/Activity:</strong> @log.EntityName<br>
+                            <strong>Entity ID:</strong> @log.EntityId<br>
+                            <strong>Action:</strong> @log.Action<br>
+                            <strong>Result:</strong> @log.Result
+                        </div>
+                        <div class="col-md-6">
+                            <strong>User:</strong> @(log.UserName ?? "System")<br>
+                            <strong>IP Address:</strong> @log.IpAddress<br>
+                            <strong>Timestamp:</strong> @log.Timestamp.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")<br>
+                            <strong>Request Path:</strong> @log.RequestPath
+                        </div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(log.Description))
+                    {
+                        <div class="mb-3">
+                            <strong>Description:</strong>
+                            <p class="bg-light p-2 rounded">@log.Description</p>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(log.UserAgent))
+                    {
+                        <div class="mb-3">
+                            <strong>User Agent:</strong>
+                            <p class="bg-light p-2 rounded small">@log.UserAgent</p>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(log.ChangedColumns))
+                    {
+                        <div class="mb-3">
+                            <strong>Changed Properties:</strong>
+                            <pre class="bg-light p-2 rounded">@Model.FormatJson(log.ChangedColumns)</pre>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(log.OldValues))
+                    {
+                        <div class="mb-3">
+                            <strong>Old Values:</strong>
+                            <pre class="bg-light p-2 rounded">@Model.FormatJson(log.OldValues)</pre>
+                        </div>
+                    }
+
+                    @if (!string.IsNullOrEmpty(log.NewValues))
+                    {
+                        <div class="mb-3">
+                            <strong>New Values:</strong>
+                            <pre class="bg-light p-2 rounded">@Model.FormatJson(log.NewValues)</pre>
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}

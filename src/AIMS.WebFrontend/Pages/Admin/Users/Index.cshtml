@@ -1,0 +1,163 @@
+@page
+@model AIMS.WebFrontend.Pages.Admin.Users.IndexModel
+@{
+    ViewData["Title"] = "User Management";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>User Management</h1>
+    @if (User.IsInRole("Admin"))
+    {
+        <a asp-page="Create" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add New User
+        </a>
+    }
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="searchTerm" class="form-control" placeholder="Search by name or email..." value="@Model.SearchTerm">
+            </div>
+            <div class="col-md-3">
+                <select name="roleFilter" class="form-select">
+                    <option value="">All Roles</option>
+                    @foreach (var role in Model.AvailableRoles)
+                    {
+                        <option value="@role.Name" selected="@(Model.RoleFilter == role.Name)">@role.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-secondary">Filter</button>
+                <a asp-page="Index" class="btn btn-outline-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Username</th>
+                        <th>Job Title</th>
+                        <th>Roles</th>
+                        <th>Email Confirmed</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var user in Model.Users)
+                    {
+                        <tr>
+                            <td>@user.FullName</td>
+                            <td>@user.Email</td>
+                            <td>@user.UserName</td>
+                            <td>@user.JobTitle</td>
+                            <td>
+                                @foreach (var role in user.Roles)
+                                {
+                                    <span class="badge bg-primary me-1">@role</span>
+                                }
+                                @if (!user.Roles.Any())
+                                {
+                                    <span class="text-muted">No roles assigned</span>
+                                }
+                            </td>
+                            <td>
+                                @if (user.EmailConfirmed)
+                                {
+                                    <span class="badge bg-success">Yes</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">No</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <a asp-page="Edit" asp-route-id="@user.Id" class="btn btn-outline-primary" title="Edit">
+                                            Edit
+                                        </a>
+                                        <a asp-page="Roles" asp-route-id="@user.Id" class="btn btn-outline-secondary" title="Manage Roles">
+                                            Roles
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger" 
+                                                data-bs-toggle="modal" 
+                                                data-bs-target="#deleteModal-@user.Id.Replace("-", "")"
+                                                title="Delete">
+                                            Delete
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">View only</span>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (!Model.Users.Any())
+        {
+            <div class="alert alert-info">
+                No users found matching the specified criteria.
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Pagination -->
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="User list pagination" class="mt-3">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link" href="?page=@(Model.CurrentPage - 1)&searchTerm=@Model.SearchTerm&roleFilter=@Model.RoleFilter">Previous</a>
+            </li>
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="?page=@i&searchTerm=@Model.SearchTerm&roleFilter=@Model.RoleFilter">@i</a>
+                </li>
+            }
+            <li class="page-item @(Model.CurrentPage == Model.TotalPages ? "disabled" : "")">
+                <a class="page-link" href="?page=@(Model.CurrentPage + 1)&searchTerm=@Model.SearchTerm&roleFilter=@Model.RoleFilter">Next</a>
+            </li>
+        </ul>
+    </nav>
+}
+
+<!-- Delete Confirmation Modals -->
+@foreach (var user in Model.Users)
+{
+    <div class="modal fade" id="deleteModal-@user.Id.Replace("-", "")" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete user <strong>@user.FullName</strong> (@user.Email)?
+                    <br><br>
+                    <span class="text-danger">This action cannot be undone.</span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@user.Id" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}

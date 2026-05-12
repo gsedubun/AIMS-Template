@@ -1,0 +1,84 @@
+@page "{id}"
+@model AIMS.WebFrontend.Pages.Admin.Users.RolesModel
+@{
+    ViewData["Title"] = $"Manage Roles - {Model.UserFullName}";
+}
+
+<h1>Manage Roles</h1>
+<h5 class="text-muted mb-4">User: @Model.UserFullName (@Model.UserEmail)</h5>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Assign Roles</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <input type="hidden" name="id" value="@Model.UserId" />
+
+                    @if (Model.AvailableRoles.Any())
+                    {
+                        <div class="list-group mb-3">
+                            @foreach (var role in Model.AvailableRoles)
+                            {
+                                <label class="list-group-item d-flex gap-2">
+                                    <input class="form-check-input flex-shrink-0" type="checkbox" 
+                                           name="SelectedRoles" 
+                                           value="@role.Name"
+                                           @(Model.UserRoles.Contains(role.Name!) ? "checked" : "")>
+                                    <span class="flex-grow-1">
+                                        <strong>@role.Name</strong>
+                                        @if (!string.IsNullOrEmpty(role.Description))
+                                        {
+                                            <br><small class="text-muted">@role.Description</small>
+                                        }
+                                    </span>
+                                </label>
+                            }
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">Save Roles</button>
+                            <a asp-page="Edit" asp-route-id="@Model.UserId" class="btn btn-outline-secondary">Edit User</a>
+                            <a asp-page="Index" class="btn btn-secondary">Back to List</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            No roles available. <a asp-page="../Roles/Index">Create roles first</a>.
+                        </div>
+                        <a asp-page="Index" class="btn btn-secondary">Back to List</a>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Current Roles</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.UserRoles.Any())
+                {
+                    <ul class="list-group">
+                        @foreach (var role in Model.UserRoles)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @role
+                                <span class="badge bg-primary rounded-pill">Active</span>
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="text-muted">No roles assigned to this user.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
