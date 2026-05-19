@@ -28,3 +28,10 @@ await _activityLogger.LogActivityAsync(
     "ApplicationUser",
     userId,
     "Success");
+
+6. create a CRUD page for AssetItem entity. only Admin and Manager can create, update and delete AssetItems, while User can only view the list of AssetItems. The page should display a list of AssetItems with options to create, edit, and delete based on the user's role. 
+    
+7. implement a search and filter functionality on the AssetItem list page to allow users to easily find specific items based on criteria such as AssetId, Description, or Type. 
+  Also add a menu to navigate to the AssetItem management page in the application.
+8. add details page for AssetItem throught link from Index page for AssetId. In this details page, allow users to add AssetItemRemarks for the opened AssetItem.
+9. include CreateBy column in AssetItemRemarks that is filled with name of the user that input the remarks
