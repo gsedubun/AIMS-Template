@@ -238,9 +238,13 @@
                         {
                             <tr>
                                 <td>
-                                    <code>@item.AssetId</code>
+                                    <a asp-page="Details" asp-route-id="@item.Id" class="text-decoration-none">
+                                        <code>@item.AssetId</code>
+                                    </a>
                                 </td>
-                                <td>@item.Title</td>
+                                <td>
+                                    <a asp-page="Details" asp-route-id="@item.Id" class="text-decoration-none">@item.Title</a>
+                                </td>
                                 <td>
                                     <span class="badge bg-info">@item.Type</span>
                                 </td>

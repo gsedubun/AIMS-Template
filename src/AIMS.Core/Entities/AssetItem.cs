@@ -11,6 +11,8 @@ public class AssetItemRemarks : BaseEntity
     [MaxLength(250)]
     public string Description { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    [MaxLength(200)]
+    public string CreatedBy {get;set; }
 
     public AssetItem AssetItem { get; set; }
 
@@ -35,6 +37,10 @@ public class AssetItem : BaseEntity
         IntegrityStatus = status;
         Events.Add(new AssetItemStatusUpdateEvent(this));
     }
+
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    [MaxLength(200)]
+    public string CreatedBy { get; set; }
 }
 public enum IntegrityStatus
 {
