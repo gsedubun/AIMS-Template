@@ -48,11 +48,11 @@
 </style>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h1><i class="bi bi-box-seam"></i> Asset Items</h1>
+    <h1><i class="fas fa-boxes-stacked"></i> Asset Items</h1>
     @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
     {
         <a asp-page="Create" class="btn btn-primary btn-lg">
-            <i class="bi bi-plus-circle"></i> Add New Asset Item
+            <i class="fas fa-circle-plus"></i> Add New Asset Item
         </a>
     }
 </div>
@@ -61,7 +61,7 @@
 <div class="card mb-4 shadow-sm filter-card">
     <div class="card-header bg-light">
         <h5 class="mb-0">
-            <i class="bi bi-funnel"></i> Search & Filter
+            <i class="fas fa-filter"></i> Search & Filter
         </h5>
     </div>
     <div class="card-body">
@@ -72,7 +72,7 @@
                     <label for="searchTerm" class="form-label"><strong>Search</strong></label>
                     <div class="input-group input-group-lg search-input-group">
                         <span class="input-group-text bg-light border-end-0">
-                            <i class="bi bi-search"></i>
+                            <i class="fas fa-magnifying-glass"></i>
                         </span>
                         <input type="text" id="searchTerm" name="searchTerm" class="form-control border-start-0" 
                                placeholder="Search by Asset ID, Title, Description, or Location..." 
@@ -125,12 +125,12 @@
             <div class="row g-2 mt-3">
                 <div class="col-auto">
                     <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-search"></i> Apply Filters
+                        <i class="fas fa-magnifying-glass"></i> Apply Filters
                     </button>
                 </div>
                 <div class="col-auto">
                     <a asp-page="Index" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-counterclockwise"></i> Clear Filters
+                        <i class="fas fa-rotate-left"></i> Clear Filters
                     </a>
                 </div>
             </div>
@@ -198,7 +198,7 @@
     <div class="card-header bg-light">
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="mb-0">
-                <i class="bi bi-list"></i> Asset Items List
+                <i class="fas fa-list"></i> Asset Items List
                 @if (Model.AssetItems.Any())
                 {
                     <span class="badge bg-secondary">@Model.AssetItems.Count result(s)</span>
@@ -210,7 +210,7 @@
         @if (!Model.AssetItems.Any())
         {
             <div class="alert alert-info" role="alert">
-                <i class="bi bi-info-circle"></i> No asset items found.
+                <i class="fas fa-circle-info"></i> No asset items found.
                 @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
                 {
                     <a asp-page="Create" class="alert-link">Create one now</a>
@@ -285,13 +285,13 @@
                                         @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
                                         {
                                             <a asp-page="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary" title="Edit">
-                                                <i class="bi bi-pencil"></i> Edit
+                                                <i class="fas fa-pencil"></i> Edit
                                             </a>
                                             <button type="button" class="btn btn-outline-danger" 
                                                     data-bs-toggle="modal" 
                                                     data-bs-target="#deleteModal-@item.Id.ToString().Replace("-", "")"
                                                     title="Delete">
-                                                <i class="bi bi-trash"></i> Delete
+                                                <i class="fas fa-trash"></i> Delete
                                             </button>
                                         }
                                         else
@@ -320,12 +320,12 @@
                         {
                             <li class="page-item">
                                 <a class="page-link" asp-page="Index" asp-route-page="1" asp-route-searchTerm="@Model.SearchTerm" asp-route-typeFilter="@Model.TypeFilter" asp-route-priorityFilter="@Model.PriorityFilter" asp-route-statusFilter="@Model.StatusFilter">
-                                    <i class="bi bi-chevron-double-left"></i>
+                                    <i class="fas fa-angles-left"></i>
                                 </a>
                             </li>
                             <li class="page-item">
                                 <a class="page-link" asp-page="Index" asp-route-page="@(Model.CurrentPage - 1)" asp-route-searchTerm="@Model.SearchTerm" asp-route-typeFilter="@Model.TypeFilter" asp-route-priorityFilter="@Model.PriorityFilter" asp-route-statusFilter="@Model.StatusFilter">
-                                    <i class="bi bi-chevron-left"></i>
+                                    <i class="fas fa-angle-left"></i>
                                 </a>
                             </li>
                         }
@@ -339,12 +339,12 @@
                         {
                             <li class="page-item">
                                 <a class="page-link" asp-page="Index" asp-route-page="@(Model.CurrentPage + 1)" asp-route-searchTerm="@Model.SearchTerm" asp-route-typeFilter="@Model.TypeFilter" asp-route-priorityFilter="@Model.PriorityFilter" asp-route-statusFilter="@Model.StatusFilter">
-                                    <i class="bi bi-chevron-right"></i>
+                                    <i class="fas fa-angle-right"></i>
                                 </a>
                             </li>
                             <li class="page-item">
                                 <a class="page-link" asp-page="Index" asp-route-page="@Model.TotalPages" asp-route-searchTerm="@Model.SearchTerm" asp-route-typeFilter="@Model.TypeFilter" asp-route-priorityFilter="@Model.PriorityFilter" asp-route-statusFilter="@Model.StatusFilter">
-                                    <i class="bi bi-chevron-double-right"></i>
+                                    <i class="fas fa-angles-right"></i>
                                 </a>
                             </li>
                         }
