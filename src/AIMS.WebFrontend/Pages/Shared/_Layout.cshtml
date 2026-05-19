@@ -1,90 +1,177 @@
-﻿<!DOCTYPE html>
+@using AIMS.Infrastructure.IdentityClass
+@inject Microsoft.AspNetCore.Identity.SignInManager<ApplicationUser> SignInManager
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - AIMS.WebFrontend</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <title>@ViewData["Title"] - AIMS</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/startbootstrap-sb-admin@7/dist/css/styles.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/AIMS.WebFrontend.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container">
-                <a class="navbar-brand" asp-area="" asp-page="/Index">AIMS.WebFrontend</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Index">Home</a>
+<body class="sb-nav-fixed">
+
+    <!-- Top navigation -->
+    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
+        <a class="navbar-brand ps-3" asp-page="/Index">AIMS</a>
+        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!">
+            <i class="fas fa-bars"></i>
+        </button>
+        <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
+            @if (SignInManager.IsSignedIn(User))
+            {
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user fa-fw"></i> @User.Identity?.Name
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                        <li>
+                            <form class="px-3 py-1" asp-page="/Account/Logout" method="post">
+                                <button type="submit" class="btn btn-link p-0 text-dark text-decoration-none">
+                                    <i class="fas fa-sign-out-alt fa-fw me-1"></i> Logout
+                                </button>
+                            </form>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-page="/Privacy">Privacy</a>
-                        </li>
+                    </ul>
+                </li>
+            }
+            else
+            {
+                <li class="nav-item">
+                    <a class="nav-link" asp-page="/Account/Login">
+                        <i class="fas fa-sign-in-alt fa-fw"></i> Login
+                    </a>
+                </li>
+            }
+        </ul>
+    </nav>
+
+    <div id="layoutSidenav">
+
+        <!-- Sidebar -->
+        <div id="layoutSidenav_nav">
+            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
+                <div class="sb-sidenav-menu">
+                    <div class="nav">
+                        <div class="sb-sidenav-menu-heading">Main</div>
+                        <a class="nav-link" asp-page="/Index">
+                            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
+                            Dashboard
+                        </a>
+
                         @if (User.Identity?.IsAuthenticated ?? false)
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-page="/AssetItems/Index">Assets</a>
-                            </li>
+                            <a class="nav-link" asp-page="/AssetItems/Index">
+                                <div class="sb-nav-link-icon"><i class="fas fa-boxes-stacked"></i></div>
+                                Assets
+                            </a>
                         }
+
                         @if (User.IsInRole("Admin"))
                         {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Admin
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" asp-page="/Admin/Users/Index">User Management</a></li>
-                                    <li><a class="dropdown-item" asp-page="/Admin/Roles/Index">Role Management</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" asp-page="/Admin/AuditLogs">Audit Trail</a></li>
-                                </ul>
-                            </li>
+                            <div class="sb-sidenav-menu-heading">Administration</div>
+                            <a class="nav-link collapsed" href="#collapseAdmin" data-bs-toggle="collapse" data-bs-target="#collapseAdmin" aria-expanded="false" aria-controls="collapseAdmin">
+                                <div class="sb-nav-link-icon"><i class="fas fa-user-shield"></i></div>
+                                Admin
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapseAdmin" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" asp-page="/Admin/Users/Index">
+                                        <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
+                                        User Management
+                                    </a>
+                                    <a class="nav-link" asp-page="/Admin/Roles/Index">
+                                        <div class="sb-nav-link-icon"><i class="fas fa-user-tag"></i></div>
+                                        Role Management
+                                    </a>
+                                    <a class="nav-link" asp-page="/Admin/AuditLogs">
+                                        <div class="sb-nav-link-icon"><i class="fas fa-clipboard-list"></i></div>
+                                        Audit Trail
+                                    </a>
+                                </nav>
+                            </div>
                         }
                         else if (User.IsInRole("Manager"))
                         {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Management
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" asp-page="/Admin/Users/Index">View Users</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" asp-page="/Admin/AuditLogs">Audit Trail</a></li>
-                                </ul>
-                            </li>
+                            <div class="sb-sidenav-menu-heading">Management</div>
+                            <a class="nav-link collapsed" href="#collapseManagement" data-bs-toggle="collapse" data-bs-target="#collapseManagement" aria-expanded="false" aria-controls="collapseManagement">
+                                <div class="sb-nav-link-icon"><i class="fas fa-users-gear"></i></div>
+                                Management
+                                <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                            </a>
+                            <div class="collapse" id="collapseManagement" data-bs-parent="#sidenavAccordion">
+                                <nav class="sb-sidenav-menu-nested nav">
+                                    <a class="nav-link" asp-page="/Admin/Users/Index">
+                                        <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
+                                        View Users
+                                    </a>
+                                    <a class="nav-link" asp-page="/Admin/AuditLogs">
+                                        <div class="sb-nav-link-icon"><i class="fas fa-clipboard-list"></i></div>
+                                        Audit Trail
+                                    </a>
+                                </nav>
+                            </div>
                         }
                         else if (User.IsInRole("User"))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-page="/Admin/AuditLogs">My Audit Trail</a>
-                            </li>
+                            <div class="sb-sidenav-menu-heading">My Account</div>
+                            <a class="nav-link" asp-page="/Admin/AuditLogs">
+                                <div class="sb-nav-link-icon"><i class="fas fa-clipboard-list"></i></div>
+                                My Audit Trail
+                            </a>
                         }
-                    </ul>
-                    <partial name="_LoginPartial" />
+                    </div>
                 </div>
-            </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - AIMS.WebFrontend - <a asp-area="" asp-page="/Privacy">Privacy</a>
+                <div class="sb-sidenav-footer">
+                    <div class="small">Logged in as:</div>
+                    @(User.Identity?.Name ?? "Guest")
+                </div>
+            </nav>
         </div>
-    </footer>
+
+        <!-- Main content -->
+        <div id="layoutSidenav_content">
+            <main>
+                <div class="container-fluid px-4 py-4">
+                    @RenderBody()
+                </div>
+            </main>
+            <footer class="py-4 bg-light mt-auto">
+                <div class="container-fluid px-4">
+                    <div class="d-flex align-items-center justify-content-between small">
+                        <div class="text-muted">&copy; 2024 AIMS &middot; <a asp-page="/Privacy">Privacy</a></div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+
+    </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/startbootstrap-sb-admin@7/dist/js/scripts.js"></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            const currentPath = window.location.pathname.toLowerCase();
+            document.querySelectorAll('.sb-sidenav-menu-nested .nav-link').forEach(function (link) {
+                const href = (link.getAttribute('href') || '').toLowerCase();
+                if (href && currentPath.startsWith(href)) {
+                    const collapse = link.closest('.collapse');
+                    if (collapse) {
+                        collapse.classList.add('show');
+                        const toggle = document.querySelector('[data-bs-target="#' + collapse.id + '"]');
+                        if (toggle) {
+                            toggle.classList.remove('collapsed');
+                            toggle.setAttribute('aria-expanded', 'true');
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>
