@@ -157,6 +157,15 @@
             <div class="detail-label">Description</div>
             <div class="detail-value">@(string.IsNullOrEmpty(Model.AssetItem.Description) ? "-" : Model.AssetItem.Description)</div>
         </div>
+        @if (!string.IsNullOrEmpty(Model.AssetItem.PicturePath))
+        {
+            <div class="detail-row">
+                <div class="detail-label">Picture</div>
+                <div class="detail-value">
+                    <img src="@Model.AssetItem.PicturePath" alt="Asset picture" class="img-fluid rounded" style="max-height: 300px;" />
+                </div>
+            </div>
+        }
     </div>
 </div>
 
@@ -254,7 +263,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <form method="post" asp-page="Delete" asp-route-id="@Model.AssetItem.Id" style="display:inline;">
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@Model.AssetItem.Id" style="display:inline;">
                         <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
                 </div>

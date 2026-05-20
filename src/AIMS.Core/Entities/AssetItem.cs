@@ -31,6 +31,8 @@ public class AssetItem : BaseEntity
     public AssetPriority Priority { get; set; }
     public IntegrityStatus IntegrityStatus { get; set; } 
     public List<AssetItemRemarks> AssetItemRemarks { get; set; }
+    [MaxLength(500)]
+    public string? PicturePath { get; set; }
 
     public void UpdateStatus(IntegrityStatus status)
     {
