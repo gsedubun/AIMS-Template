@@ -39,11 +39,6 @@ public class LogoutModel : PageModel
 
         await _signInManager.SignOutAsync();
 
-        if (returnUrl != null)
-        {
-            return LocalRedirect(returnUrl);
-        }
-
-        return RedirectToPage();
+        return RedirectToPage("/Account/Login");
     }
 }

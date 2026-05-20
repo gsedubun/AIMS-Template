@@ -14,28 +14,30 @@ public class EditModel : PageModel
 {
     private readonly AppDbContext _context;
     private readonly IActivityLogger _activityLogger;
+    private readonly IWebHostEnvironment _env;
 
-    public EditModel(AppDbContext context, IActivityLogger activityLogger)
+    private static readonly string[] AllowedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
+
+    public EditModel(AppDbContext context, IActivityLogger activityLogger, IWebHostEnvironment env)
     {
         _context = context;
         _activityLogger = activityLogger;
+        _env = env;
     }
 
     [BindProperty]
     public EditAssetItemInput Input { get; set; } = new();
 
-    public int AssetItemId { get; set; }
+    public string? ExistingPicturePath { get; set; }
 
     public async Task<IActionResult> OnGetAsync(int id)
     {
         var assetItem = await _context.AssetItems.FirstOrDefaultAsync(a => a.Id == id);
 
         if (assetItem == null)
-        {
             return NotFound();
-        }
 
-        AssetItemId = assetItem.Id;
+        ExistingPicturePath = assetItem.PicturePath;
         Input = new EditAssetItemInput
         {
             Title = assetItem.Title,
@@ -50,18 +52,50 @@ public class EditModel : PageModel
         return Page();
     }
 
-    public async Task<IActionResult> OnPostAsync()
+    public async Task<IActionResult> OnPostAsync(int id)
     {
-        if (!ModelState.IsValid)
-        {
-            return Page();
-        }
-
-        var assetItem = await _context.AssetItems.FirstOrDefaultAsync(a => a.Id == AssetItemId);
+        var assetItem = await _context.AssetItems.FirstOrDefaultAsync(a => a.Id == id);
 
         if (assetItem == null)
-        {
             return NotFound();
+
+        ExistingPicturePath = assetItem.PicturePath;
+
+        if (!ModelState.IsValid)
+            return Page();
+
+        if (Input.Picture != null && Input.Picture.Length > 0)
+        {
+            if (Input.Picture.Length > 2 * 1024 * 1024)
+            {
+                ModelState.AddModelError("Input.Picture", "File size must not exceed 2 MB.");
+                return Page();
+            }
+
+            var ext = Path.GetExtension(Input.Picture.FileName).ToLowerInvariant();
+            if (!AllowedExtensions.Contains(ext))
+            {
+                ModelState.AddModelError("Input.Picture", "Only image files (.jpg, .jpeg, .png, .gif, .webp) are allowed.");
+                return Page();
+            }
+
+            // Delete old picture if present
+            if (!string.IsNullOrEmpty(assetItem.PicturePath))
+            {
+                var oldFile = Path.Combine(_env.WebRootPath, assetItem.PicturePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+                if (System.IO.File.Exists(oldFile))
+                    System.IO.File.Delete(oldFile);
+            }
+
+            var dir = Path.Combine(_env.WebRootPath, "asset-pictures");
+            Directory.CreateDirectory(dir);
+            var fileName = $"{Guid.NewGuid()}{ext}";
+            var filePath = Path.Combine(dir, fileName);
+
+            using var stream = new FileStream(filePath, FileMode.Create);
+            await Input.Picture.CopyToAsync(stream);
+
+            assetItem.PicturePath = $"/asset-pictures/{fileName}";
         }
 
         var originalTitle = assetItem.Title;
@@ -76,7 +110,6 @@ public class EditModel : PageModel
         _context.AssetItems.Update(assetItem);
         await _context.SaveChangesAsync();
 
-        // Log activity
         await _activityLogger.LogActivityAsync(
             "AssetItemUpdated",
             $"Asset item '{originalTitle}' updated to '{assetItem.Title}'",
@@ -111,5 +144,7 @@ public class EditModel : PageModel
 
         [Required]
         public IntegrityStatus IntegrityStatus { get; set; }
+
+        public IFormFile? Picture { get; set; }
     }
 }

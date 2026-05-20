@@ -13,25 +13,53 @@ public class CreateModel : PageModel
 {
     private readonly AppDbContext _context;
     private readonly IActivityLogger _activityLogger;
+    private readonly IWebHostEnvironment _env;
 
-    public CreateModel(AppDbContext context, IActivityLogger activityLogger)
+    private static readonly string[] AllowedExtensions = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
+
+    public CreateModel(AppDbContext context, IActivityLogger activityLogger, IWebHostEnvironment env)
     {
         _context = context;
         _activityLogger = activityLogger;
+        _env = env;
     }
 
     [BindProperty]
     public CreateAssetItemInput Input { get; set; } = new();
 
-    public void OnGet()
-    {
-    }
+    public void OnGet() { }
 
     public async Task<IActionResult> OnPostAsync()
     {
         if (!ModelState.IsValid)
-        {
             return Page();
+
+        string? picturePath = null;
+
+        if (Input.Picture != null && Input.Picture.Length > 0)
+        {
+            if (Input.Picture.Length > 2 * 1024 * 1024)
+            {
+                ModelState.AddModelError("Input.Picture", "File size must not exceed 2 MB.");
+                return Page();
+            }
+
+            var ext = Path.GetExtension(Input.Picture.FileName).ToLowerInvariant();
+            if (!AllowedExtensions.Contains(ext))
+            {
+                ModelState.AddModelError("Input.Picture", "Only image files (.jpg, .jpeg, .png, .gif, .webp) are allowed.");
+                return Page();
+            }
+
+            var dir = Path.Combine(_env.WebRootPath, "asset-pictures");
+            Directory.CreateDirectory(dir);
+            var fileName = $"{Guid.NewGuid()}{ext}";
+            var filePath = Path.Combine(dir, fileName);
+
+            using var stream = new FileStream(filePath, FileMode.Create);
+            await Input.Picture.CopyToAsync(stream);
+
+            picturePath = $"/asset-pictures/{fileName}";
         }
 
         var assetItem = new AssetItem
@@ -42,13 +70,13 @@ public class CreateModel : PageModel
             Type = Input.Type,
             Location = Input.Location,
             Priority = Input.Priority,
-            IntegrityStatus = Input.IntegrityStatus
+            IntegrityStatus = Input.IntegrityStatus,
+            PicturePath = picturePath
         };
 
         _context.AssetItems.Add(assetItem);
         await _context.SaveChangesAsync();
 
-        // Log activity
         await _activityLogger.LogActivityAsync(
             "AssetItemCreated",
             $"Asset item '{assetItem.Title}' created",
@@ -83,5 +111,7 @@ public class CreateModel : PageModel
 
         [Required]
         public IntegrityStatus IntegrityStatus { get; set; }
+
+        public IFormFile? Picture { get; set; }
     }
 }

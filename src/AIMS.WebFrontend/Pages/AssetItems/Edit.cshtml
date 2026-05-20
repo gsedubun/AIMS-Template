@@ -10,9 +10,7 @@
         <h1>Edit Asset Item</h1>
         <hr />
 
-        <form method="post" class="needs-validation">
-            <input type="hidden" asp-for="AssetItemId" />
-
+        <form method="post" enctype="multipart/form-data" class="needs-validation">
             <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
             <div class="mb-3">
@@ -83,6 +81,19 @@
                         <span asp-validation-for="Input.IntegrityStatus" class="d-block mt-1 text-danger"></span>
                     </div>
                 </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Picture" class="form-label">Picture <span class="text-muted small">(optional — jpg, png, gif, webp, max 2 MB)</span></label>
+                @if (!string.IsNullOrEmpty(Model.ExistingPicturePath))
+                {
+                    <div class="mb-2">
+                        <img src="@Model.ExistingPicturePath" alt="Current picture" class="img-thumbnail" style="max-height: 150px;" />
+                        <small class="d-block text-muted mt-1">Upload a new file to replace the current picture.</small>
+                    </div>
+                }
+                <input asp-for="Input.Picture" type="file" class="form-control" accept=".jpg,.jpeg,.png,.gif,.webp" />
+                <span asp-validation-for="Input.Picture" class="text-danger small"></span>
             </div>
 
             <div class="form-group mt-4">

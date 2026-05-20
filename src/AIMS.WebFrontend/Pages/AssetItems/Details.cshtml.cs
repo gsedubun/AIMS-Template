@@ -45,6 +45,37 @@ public class DetailsModel : PageModel
         return Page();
     }
 
+    public async Task<IActionResult> OnPostDeleteAsync(int id)
+    {
+        if (!User.IsInRole("Admin") && !User.IsInRole("Manager"))
+        {
+            return Forbid();
+        }
+
+        var assetItem = await _context.AssetItems
+            .Include(a => a.AssetItemRemarks)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (assetItem == null)
+        {
+            return NotFound();
+        }
+
+        var assetItemTitle = assetItem.Title;
+        _context.AssetRemarks.RemoveRange(assetItem.AssetItemRemarks);
+        _context.AssetItems.Remove(assetItem);
+        await _context.SaveChangesAsync();
+
+        await _activityLogger.LogActivityAsync(
+            "AssetItemDeleted",
+            $"Asset item '{assetItemTitle}' deleted",
+            "AssetItem",
+            id.ToString()
+        );
+
+        return RedirectToPage("Index");
+    }
+
     public async Task<IActionResult> OnPostAsync(int id)
     {
         // Only Admin and Manager can add remarks, but Users can also add remarks (view-only doesn't mean can't comment)
